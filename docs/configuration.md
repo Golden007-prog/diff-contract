@@ -72,6 +72,12 @@ Non-list, non-string values and lists containing non-strings are rejected with
 the same style of message. An unknown `on_violation` value lists the valid
 ones.
 
+`max_files` and `max_lines` must be integers, such as `max_files: 15`.
+Quoted numbers (`"15"`), booleans (`true` / `false`), fractional numbers and
+collections are rejected with the field name and rule index in the error.
+Omitting either field or setting it to `null` leaves that limit unset;
+`0` is a valid limit that allows no changed files or lines.
+
 Any parse failure makes the command print `ERROR: Invalid contract ...` and exit
 `1` — it never falls back to "allow everything".
 

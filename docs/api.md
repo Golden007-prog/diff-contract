@@ -102,6 +102,8 @@ Parses an already-loaded mapping. Missing `version` defaults to `1`; missing
 
 Raises `ValueError` for a bare-string `allow`/`deny` (the "did you mean a list"
 message) and for an unrecognised `on_violation` value.
+Non-integer `max_files` / `max_lines` values also raise `ValueError`, including
+booleans and quoted numbers. Omitted or `None` limits remain unset.
 
 #### `parse_file(path: Path) -> Contract`
 

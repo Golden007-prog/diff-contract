@@ -58,7 +58,7 @@ def _as_pattern_tuple(raw: Any, field: str, index: int) -> tuple[str, ...]:
         raise ValueError(
             f"Invalid '{field}' value at rule {index}: expected a list of glob "
             f"strings, got the string {value!r}. Did you mean:\n"
-            f"  {field}:\n    - \"{value}\""
+            f'  {field}:\n    - "{value}"'
         )
     if not isinstance(value, (list, tuple)):
         raise ValueError(
@@ -67,11 +67,20 @@ def _as_pattern_tuple(raw: Any, field: str, index: int) -> tuple[str, ...]:
         )
     bad = [p for p in value if not isinstance(p, str)]
     if bad:
-        raise ValueError(
-            f"Invalid '{field}' entry at rule {index}: expected a string, "
-            f"got {bad!r}"
-        )
+        raise ValueError(f"Invalid '{field}' entry at rule {index}: expected a string, got {bad!r}")
     return tuple(value)
+
+
+def _as_optional_int(raw: dict[str, Any], field: str, index: int) -> int | None:
+    """Validate an optional aggregate limit without coercing YAML scalars."""
+    value = raw.get(field)
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(
+            f"Invalid '{field}' value at rule {index}: expected an integer, got {value!r}"
+        )
+    return value
 
 
 class ContractParser:
@@ -100,8 +109,8 @@ class ContractParser:
 
         allow = _as_pattern_tuple(raw, "allow", index)
         deny = _as_pattern_tuple(raw, "deny", index)
-        max_files = raw.get("max_files")
-        max_lines = raw.get("max_lines")
+        max_files = _as_optional_int(raw, "max_files", index)
+        max_lines = _as_optional_int(raw, "max_lines", index)
 
         return ContractRule(
             name=name,
